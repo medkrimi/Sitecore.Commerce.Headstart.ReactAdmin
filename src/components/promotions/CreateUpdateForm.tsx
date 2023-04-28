@@ -1,4 +1,5 @@
 import * as Yup from "yup"
+
 import {
   Box,
   Button,
@@ -22,19 +23,21 @@ import {
   SimpleGrid,
   UnorderedList
 } from "@chakra-ui/react"
-import {DeleteIcon} from "@chakra-ui/icons"
-import {InputControl, RadioGroupControl, SwitchControl, TextareaControl} from "components/formik"
 import {Formik, useField, useFormikContext} from "formik"
+import {InputControl, RadioGroupControl, SelectControl, SwitchControl, TextareaControl} from "components/formik"
+import {Promotion, Promotions} from "ordercloud-javascript-sdk"
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from "@chakra-ui/react"
+import {appPredefinedPromotions, appPredefinedPromotionsGrouped} from "../../constants/app-promotions.config"
 import {useEffect, useState} from "react"
+
 import Card from "../card/Card"
 import DatePicker from "../datepicker/DatePicker"
+import {DeleteIcon} from "@chakra-ui/icons"
 import {ExpressionBuilder} from "./ExpressionBuilder"
-import {Promotion, Promotions} from "ordercloud-javascript-sdk"
-import {useRouter} from "hooks/useRouter"
-import {useCreateUpdateForm} from "hooks/useCreateUpdateForm"
 import {IPromotion} from "types/ordercloud/IPromotion"
 import PromotionXpCard from "./PromotionXpCard"
+import {useCreateUpdateForm} from "hooks/useCreateUpdateForm"
+import {useRouter} from "hooks/useRouter"
 
 export {CreateUpdateForm}
 
@@ -130,6 +133,12 @@ function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
     }
   }
 
+  const updateExpressions = (value, setFieldValue) => {
+    const promo = appPredefinedPromotions.find((item) => item.Name === value)
+    setFieldValue("EligibleExpression", promo?.EligibleExpression)
+    setFieldValue("ValueExpression", promo?.ValueExpression)
+  }
+
   return (
     <>
       <Card variant="primaryCard">
@@ -145,6 +154,7 @@ function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
             errors,
             touched,
             dirty,
+            handleChange,
             handleBlur,
             handleSubmit,
             isValid,
@@ -197,11 +207,9 @@ function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
                         {/* This tab contains all default Promotion API options (No extended propreties) */}
                         <Tab>Default Options</Tab>
                         {/* This tab contains some examples of how we can leverage XP (extended Propreties) */}
-                        <Tab>Advanced Rules</Tab>
+                        {/* <Tab>Advanced Rules</Tab> */}
                         {/* This tab contains another examples to show the flexibility offered by EligibleExpressions and ValueExpression Fileds. */}
                         <Tab>Expression Builder</Tab>
-                        {/* This tab contains a way to add any other extended properties. */}
-                        <Tab>Extended Properties (xp)</Tab>
                       </TabList>
                       <TabPanels>
                         <TabPanel>
@@ -264,7 +272,7 @@ function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
                             </Box>
                           </SimpleGrid>
                         </TabPanel>
-                        <TabPanel>
+                        {/* <TabPanel>
                           <SimpleGrid columns={2} spacing={10}>
                             <Box>
                               <RadioGroupControl name="xp_MinimumReq" label="Minimum requirment">
@@ -302,28 +310,40 @@ function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
                               <Divider mt="15" mb="15" />
                             </Box>
                           </SimpleGrid>
-                        </TabPanel>
+                        </TabPanel> */}
                         <TabPanel>
                           <SimpleGrid columns={2} spacing={10}>
                             <Box>
-                              <EligibleExpressionField
-                                name="EligibleExpression"
-                                label="Eligible Expression"
-                                isRequired
-                              />
+                              <TextareaControl name="EligibleExpression" label="Eligible Expression" isRequired />
                             </Box>
                             <Box>
                               <TextareaControl name="ValueExpression" label="Value Expression" isRequired />
                             </Box>
                           </SimpleGrid>
+                          <Box>
+                            <label>Predefined Promotion Templates</label>
+                            <SelectControl
+                              name="PromotionTemplate"
+                              selectProps={{
+                                placeholder: "Select from promotion predefined templates"
+                              }}
+                              onChange={(e) => {
+                                handleChange(e)
+                                const value = (e.target as HTMLSelectElement).value
+                                updateExpressions(value, setFieldValue)
+                              }}
+                            >
+                              {Object.keys(appPredefinedPromotionsGrouped).map((group, index) => (
+                                <optgroup key={index} label={group}>
+                                  {appPredefinedPromotionsGrouped[group].map((promo, _key) => (
+                                    <option key={promo.Name}>{promo.Name}</option>
+                                  ))}
+                                </optgroup>
+                              ))}
+                            </SelectControl>
+                          </Box>
+                          <Divider mt="15" mb="15" />
                           <ExpressionBuilder />
-                        </TabPanel>
-                        <TabPanel>
-                          <SimpleGrid columns={2} spacing={10}>
-                            <Box>
-                              <PromotionXpCard promotion={promotion} />
-                            </Box>
-                          </SimpleGrid>
                         </TabPanel>
                       </TabPanels>
                     </Tabs>
