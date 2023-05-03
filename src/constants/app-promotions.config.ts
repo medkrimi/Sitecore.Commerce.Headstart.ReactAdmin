@@ -14,6 +14,12 @@ export const appPredefinedPromotions = [
     Category: "Free Shipping"
   },
   {
+    Name: "Free Shipping when you spend $100",
+    EligibleExpression: '"order.Subtotal >= 100"',
+    ValueExpression: '"order.ShippingCost"',
+    Category: "Free Shipping"
+  },
+  {
     Name: "BOGO (limited to 1 free item)",
     EligibleExpression: " \"items.quantity(ProductID = 'ABC') > 1\"",
     ValueExpression: " \"items.total(ProductID = 'ABC') / items.quantity(ProductID = 'ABC')\"",
