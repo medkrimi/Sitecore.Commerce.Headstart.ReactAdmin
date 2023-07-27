@@ -1,7 +1,8 @@
 import { Badge, Box, Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Heading, Image, Text } from "@chakra-ui/react"
+
+import { Link } from '../../navigation/Link'
 import { Product } from "ordercloud-javascript-sdk"
 import { textHelper } from "utils/text.utils"
-import { Link } from '../../navigation/Link'
 
 interface ProductCardProps {
   product: Product

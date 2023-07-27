@@ -1,38 +1,39 @@
 import {
   Card,
+  CardBody,
+  CardHeader,
+  Flex,
   Icon,
+  IconButton,
   SimpleGrid,
+  Spinner,
   Text,
   VStack,
+  theme,
   useColorMode,
   useColorModeValue,
-  CardHeader,
-  CardBody,
-  Spinner,
-  IconButton,
-  Flex,
-  useMediaQuery,
-  theme
+  useMediaQuery
 } from "@chakra-ui/react"
 import { HiOutlineCurrencyDollar, HiOutlineFolderOpen, HiOutlineUserAdd, HiOutlineUserCircle } from "react-icons/hi"
+import { Orders, Products, Promotions } from "ordercloud-javascript-sdk"
 import { useEffect, useState } from "react"
+
 import AverageOrderAmount from "components/analytics/AverageOrderAmount"
+import { IOrder } from "types/ordercloud/IOrder"
+import { IProduct } from "types/ordercloud/IProduct"
+import { IPromotion } from "types/ordercloud/IPromotion"
+import { Link } from "components/navigation/Link"
 import NewClients from "components/analytics/PercentChangeTile"
 import { NextSeo } from "next-seo"
+import { TbArrowsDiagonal } from "react-icons/tb"
 import TodaysMoney from "components/analytics/PercentChangeTile"
 import TodaysUsers from "components/analytics/PercentChangeTile"
 import TotalSales from "components/analytics/PercentChangeTile"
 import { appPermissions } from "constants/app-permissions.config"
-import { priceHelper } from "utils/price.utils"
-import useHasAccess from "hooks/useHasAccess"
-import { Link } from "components/navigation/Link"
-import { Orders, Products, Promotions } from "ordercloud-javascript-sdk"
-import { IOrder } from "types/ordercloud/IOrder"
-import { IProduct } from "types/ordercloud/IProduct"
-import { IPromotion } from "types/ordercloud/IPromotion"
 import { dashboardService } from "services/dashboard.service"
+import { priceHelper } from "utils/price.utils"
 import schraTheme from "theme/theme"
-import { TbArrowsDiagonal } from "react-icons/tb"
+import useHasAccess from "hooks/useHasAccess"
 
 const Dashboard = () => {
   const { colorMode, toggleColorMode } = useColorMode()
@@ -154,21 +155,21 @@ const Dashboard = () => {
     return <div></div>
   }
 
-  const productsLatestUpdated = new Date(products?.map((i) => i?.Inventory)?.map((lu) => lu?.LastUpdated)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
-  const ordersLatestUpdated = new Date(orders?.map((lu) => lu?.LastUpdated)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
-  const usersLatestUpdated = new Date(users?.map((i) => i?.StartDate)?.filter((wtf) => wtf)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
-  const promotionsLatestUpdated = new Date(promotions?.map((i) => i?.StartDate)?.filter((wtf) => wtf)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
-
-  console.log("promotions", promotionsLatestUpdated)
-
-  const data = [
-    { label: "products", labelSingular: "product", var: products, funFact: productsLatestUpdated },
-    { label: "orders", labelSingular: "order", var: orders, funFact: ordersLatestUpdated },
-    { label: "users", labelSingular: "user", var: users, funFact: usersLatestUpdated },
-    { label: "promotions", labelSingular: "promotion", var: promotions, funFact: promotionsLatestUpdated }
-  ]
-
-
+  let data = []
+  try {
+    const productsLatestUpdated = new Date(products?.map((i) => i?.Inventory)?.map((lu) => lu?.LastUpdated)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
+    const ordersLatestUpdated = new Date(orders?.map((lu) => lu?.LastUpdated)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
+    const usersLatestUpdated = new Date(users?.map((i) => i?.StartDate)?.filter((wtf) => wtf)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
+    const promotionsLatestUpdated = new Date(promotions?.map((i) => i?.StartDate)?.filter((wtf) => wtf)?.reduce((a, b) => (a.MeasureDate > b.MeasureDate ? a : b), {})).toLocaleDateString()
+    data = [
+      { label: "products", labelSingular: "product", var: products, funFact: productsLatestUpdated },
+      { label: "orders", labelSingular: "order", var: orders, funFact: ordersLatestUpdated },
+      { label: "users", labelSingular: "user", var: users, funFact: usersLatestUpdated },
+      { label: "promotions", labelSingular: "promotion", var: promotions, funFact: promotionsLatestUpdated }
+    ]
+  } catch (error) {
+    console.error(error);
+  }
 
   const miniWidgets = data.map((item) => (
     <Card as={Link} variant={"levitating"} border={`.5px solid ${schraTheme.colors.blackAlpha[300]}`} href={"/" + item.label} key={item.label} pos={"relative"}>

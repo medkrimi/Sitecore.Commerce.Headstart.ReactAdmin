@@ -1,17 +1,19 @@
+import { Button, HStack, Icon, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Text } from "@chakra-ui/react"
+import { ChevronDownIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons"
+import { FC, useMemo } from "react"
+
 import BulkImport from "@/components/demo/BulkImport"
 import ExportToCsv from "@/components/demo/ExportToCsv"
-import { ChevronDownIcon, EditIcon } from "@chakra-ui/icons"
-import { Button, HStack, Menu, Icon, MenuButton, MenuDivider, MenuItem, MenuList, Text } from "@chakra-ui/react"
-import { FC, useMemo } from "react"
 import { TbSpeakerphone } from "react-icons/tb"
 
 interface IProductListActions {
   selected?: string[]
   onBulkPromote: () => void
   onBulkEdit: () => void
+  onBulkDelete: () => void
 }
 // title={`${selected.length} selected product${selected.length === 1 ? "" : "s"}`}
-const ProductListActions: FC<IProductListActions> = ({ selected, onBulkPromote, onBulkEdit }) => {
+const ProductListActions: FC<IProductListActions> = ({ selected, onBulkPromote, onBulkEdit, onBulkDelete }) => {
   const hasBulkSelection = useMemo(() => {
     return selected && selected.length > 1
   }, [selected])
@@ -29,6 +31,9 @@ const ProductListActions: FC<IProductListActions> = ({ selected, onBulkPromote, 
         <MenuDivider />
         <MenuItem justifyContent="space-between" onClick={onBulkEdit} isDisabled={!hasBulkSelection}>
           Bulk Edit <EditIcon />
+        </MenuItem>
+        <MenuItem justifyContent="space-between" onClick={onBulkEdit} isDisabled={!hasBulkSelection}>
+          Bulk Delete <DeleteIcon />
         </MenuItem>
         <MenuItem
           justifyContent="space-between"

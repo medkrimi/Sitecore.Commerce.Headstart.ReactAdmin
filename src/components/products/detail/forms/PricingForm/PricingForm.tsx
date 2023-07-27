@@ -1,5 +1,5 @@
-import {InputControl, NumberInputControl, SwitchControl} from "@/components/react-hook-form"
-import {ChevronDownIcon, ChevronRightIcon, InfoOutlineIcon} from "@chakra-ui/icons"
+import * as fieldNames from "./fieldNames"
+
 import {
   Accordion,
   AccordionButton,
@@ -21,24 +21,26 @@ import {
   Text,
   useDisclosure
 } from "@chakra-ui/react"
-import {useErrorToast} from "hooks/useToast"
-import {compact, get} from "lodash"
-import {useEffect, useState} from "react"
-import {Control, FieldValues, useFieldArray, useFormState, UseFormTrigger, useWatch} from "react-hook-form"
-import {validationSchema} from "../meta"
-import * as fieldNames from "./fieldNames"
+import { ChevronDownIcon, ChevronRightIcon, InfoOutlineIcon } from "@chakra-ui/icons"
+import { Control, FieldValues, UseFormTrigger, useFieldArray, useFormState, useWatch } from "react-hook-form"
+import { InputControl, NumberInputControl, SwitchControl } from "@/components/react-hook-form"
+import { compact, get } from "lodash"
+import { useEffect, useState } from "react"
+
+import { useErrorToast } from "hooks/useToast"
+import { validationSchema } from "../meta"
 
 interface PriceBreakTableProps {
   control: Control<FieldValues, any>
   trigger: UseFormTrigger<any>
 }
-const PriceBreakTable = ({control, trigger}: PriceBreakTableProps) => {
-  const {fields, append, remove} = useFieldArray({
+const PriceBreakTable = ({ control, trigger }: PriceBreakTableProps) => {
+  const { fields, append, remove } = useFieldArray({
     control,
     name: fieldNames.PRICE_BREAKS
   })
-  const {errors} = useFormState({control})
-  const watchFields = useWatch({control, name: fieldNames.PRICE_BREAKS})
+  const { errors } = useFormState({ control })
+  const watchFields = useWatch({ control, name: fieldNames.PRICE_BREAKS })
   const errorMessage = getPricebreakErrorMessage(errors)
   const errorToast = useErrorToast()
 
@@ -56,10 +58,10 @@ const PriceBreakTable = ({control, trigger}: PriceBreakTableProps) => {
 
   const handleAddPriceBreak = () => {
     if (errorMessage) {
-      errorToast({description: errorMessage})
+      errorToast({ description: errorMessage })
       return
     }
-    append({Quantity: "", Price: "", SalePrice: ""})
+    append({ Quantity: "", Price: "", SalePrice: "" })
   }
 
   function getPricebreakErrorMessage(errors: any) {
@@ -86,16 +88,16 @@ const PriceBreakTable = ({control, trigger}: PriceBreakTableProps) => {
         Volume Pricing
       </Text>
       {fields.map((field, index) => (
-        <Flex key={field.id} gap={4} alignItems="end" flexWrap={{base: "wrap", lg: "nowrap"}}>
+        <Flex key={field.id} gap={4} alignItems="end" flexWrap={{ base: "wrap", lg: "nowrap" }}>
           <NumberInputControl
-            numberInputProps={{flexGrow: 1}}
+            numberInputProps={{ flexGrow: 1 }}
             name={`${fieldNames.PRICE_BREAKS}.${index}.Quantity`}
             label="Quantity"
             control={control}
             validationSchema={validationSchema}
           />
           <NumberInputControl
-            numberInputProps={{flexGrow: 1}}
+            numberInputProps={{ flexGrow: 1 }}
             name={`${fieldNames.PRICE_BREAKS}.${index}.Price`}
             label="Price (per unit)"
             control={control}
@@ -103,7 +105,7 @@ const PriceBreakTable = ({control, trigger}: PriceBreakTableProps) => {
             validationSchema={validationSchema}
           />
           <NumberInputControl
-            numberInputProps={{flexGrow: 1}}
+            numberInputProps={{ flexGrow: 1 }}
             name={`${fieldNames.PRICE_BREAKS}.${index}.SalePrice`}
             label="Sale Price (per unit)"
             control={control}
@@ -139,19 +141,19 @@ interface PricingFormProps {
   trigger: UseFormTrigger<any>
   priceBreakCount: number
 }
-export function PricingForm({control, trigger, priceBreakCount}: PricingFormProps) {
+export function PricingForm({ control, trigger, priceBreakCount }: PricingFormProps) {
   const [showAdvancedPricing, setShowAdvancedPricing] = useState(priceBreakCount > 1)
-  const {isOpen, onToggle} = useDisclosure()
+  const { isOpen, onToggle } = useDisclosure()
   return (
     <>
       <Card>
         <CardBody flexDirection="column" gap={4}>
-          <Grid templateColumns={{base: "1fr", xl: "1fr 1fr"}} gap={4}>
+          <Grid templateColumns={{ base: "1fr", xl: "1fr 1fr" }} gap={4}>
             <InputControl
               name={`${fieldNames.PRICE_BREAKS}.${0}.Price`}
               label="Regular Price (per unit)"
               control={control}
-              leftAddon="$"
+              leftAddon="POINTS"
               validationSchema={validationSchema}
             />
 
@@ -159,16 +161,16 @@ export function PricingForm({control, trigger, priceBreakCount}: PricingFormProp
               name={`${fieldNames.PRICE_BREAKS}.${0}.SalePrice`}
               label="Sale Price (per unit)"
               control={control}
-              leftAddon="$"
+              leftAddon="POINTS"
               validationSchema={validationSchema}
             />
 
-            <Grid gap={4} gridTemplateColumns={{base: "1fr", xl: "1fr 1fr"}}>
+            <Grid gap={4} gridTemplateColumns={{ base: "1fr", xl: "1fr 1fr" }}>
               <InputControl
                 name={fieldNames.SALE_START}
                 label="Sale Start"
                 control={control}
-                inputProps={{type: "datetime-local"}}
+                inputProps={{ type: "datetime-local" }}
                 validationSchema={validationSchema}
               />
 
@@ -176,7 +178,7 @@ export function PricingForm({control, trigger, priceBreakCount}: PricingFormProp
                 name={fieldNames.SALE_END}
                 label="Sale End"
                 control={control}
-                inputProps={{type: "datetime-local"}}
+                inputProps={{ type: "datetime-local" }}
                 validationSchema={validationSchema}
               />
             </Grid>
@@ -201,7 +203,7 @@ export function PricingForm({control, trigger, priceBreakCount}: PricingFormProp
                 <Flex flexDirection="column" gap={4} mt={4}>
                   <Box>
                     <SwitchControl
-                      switchProps={{size: "md"}}
+                      switchProps={{ size: "md" }}
                       name={fieldNames.RESTRICTED_QUANTITY}
                       label="Restrict order quantity"
                       control={control}
@@ -216,7 +218,7 @@ export function PricingForm({control, trigger, priceBreakCount}: PricingFormProp
                     <Text fontSize="lg" fontWeight="bold" marginBottom={3}>
                       Order Limitations
                     </Text>
-                    <Flex gap={4} flexWrap={{base: "wrap", lg: "nowrap"}}>
+                    <Flex gap={4} flexWrap={{ base: "wrap", lg: "nowrap" }}>
                       <InputControl
                         name={fieldNames.MIN_QUANTITY}
                         label="Minimum quantity"

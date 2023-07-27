@@ -1,51 +1,52 @@
 import {
-  Heading,
-  Tabs,
-  TabList,
-  TabPanel,
-  TabPanels,
+  Box,
+  Button,
   Card,
   CardBody,
   CardHeader,
-  Box,
-  Flex,
-  Divider,
-  Container,
   Center,
-  VStack,
-  Icon,
-  SimpleGrid,
-  Text,
-  Button,
-  theme,
-  InputGroup,
-  FormLabel,
-  Input,
+  Container,
+  Divider,
+  Flex,
   FormControl,
-  Textarea
+  FormLabel,
+  Heading,
+  Icon,
+  Input,
+  InputGroup,
+  SimpleGrid,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  Textarea,
+  VStack,
+  theme
 } from "@chakra-ui/react"
-import {DescriptionForm} from "./forms/DescriptionForm/DescriptionForm"
-import {DetailsForm} from "./forms/DetailsForm/DetailsForm"
-import {InventoryForm} from "./forms/InventoryForm/InventoryForm"
-import {ShippingForm} from "./forms/ShippingForm/ShippingForm"
-import {UnitOfMeasureForm} from "./forms/UnitOfMeasureForm/UnitOfMeasureForm"
+import { PriceSchedules, Products } from "ordercloud-javascript-sdk"
+import { TbBarrierBlock, TbCactus, TbFileUpload } from "react-icons/tb"
+import { cloneDeep, invert } from "lodash"
+import { defaultValues, validationSchema } from "./forms/meta"
+import { getObjectDiff, makeNestedObject, withDefaultValuesFallback } from "utils"
+
+import { DescriptionForm } from "./forms/DescriptionForm/DescriptionForm"
+import { DetailsForm } from "./forms/DetailsForm/DetailsForm"
+import { IPriceSchedule } from "types/ordercloud/IPriceSchedule"
+import { IProduct } from "types/ordercloud/IProduct"
 import ImagePreview from "./ImagePreview"
-import {withDefaultValuesFallback, getObjectDiff, makeNestedObject} from "utils"
-import {cloneDeep, invert} from "lodash"
-import {PriceSchedules, Products} from "ordercloud-javascript-sdk"
-import {defaultValues, validationSchema} from "./forms/meta"
+import { InventoryForm } from "./forms/InventoryForm/InventoryForm"
+import { PricingForm } from "./forms/PricingForm/PricingForm"
+import { ProductDetailTab } from "./ProductDetailTab"
 import ProductDetailToolbar from "./ProductDetailToolbar"
-import {useSuccessToast} from "hooks/useToast"
-import {IProduct} from "types/ordercloud/IProduct"
-import {useRouter} from "hooks/useRouter"
-import {useState} from "react"
-import {yupResolver} from "@hookform/resolvers/yup"
-import {useForm} from "react-hook-form"
-import {PricingForm} from "./forms/PricingForm/PricingForm"
-import {ProductDetailTab} from "./ProductDetailTab"
-import {IPriceSchedule} from "types/ordercloud/IPriceSchedule"
-import {TbBarrierBlock, TbCactus, TbFileUpload} from "react-icons/tb"
+import { ShippingForm } from "./forms/ShippingForm/ShippingForm"
+import { UnitOfMeasureForm } from "./forms/UnitOfMeasureForm/UnitOfMeasureForm"
 import schraTheme from "theme/theme"
+import { useForm } from "react-hook-form"
+import { useRouter } from "hooks/useRouter"
+import { useState } from "react"
+import { useSuccessToast } from "hooks/useToast"
+import { yupResolver } from "@hookform/resolvers/yup"
 
 export type ProductDetailTab = "Details" | "Pricing" | "Variants" | "Media" | "Facets" | "Customization" | "SEO"
 
@@ -88,17 +89,17 @@ export default function ProductDetail({
 
   const initialValues = product
     ? withDefaultValuesFallback(
-        {Product: cloneDeep(product), DefaultPriceSchedule: cloneDeep(defaultPriceSchedule)},
-        defaultValues
-      )
+      { Product: cloneDeep(product), DefaultPriceSchedule: cloneDeep(defaultPriceSchedule) },
+      defaultValues
+    )
     : makeNestedObject(defaultValues)
 
   const handleTabsChange = (index) => {
-    router.push({query: {...router.query, tab: inverseTabIndexMap[index]}}, undefined, {shallow: true})
+    router.push({ query: { ...router.query, tab: inverseTabIndexMap[index] } }, undefined, { shallow: true })
     setTabIndex(index)
   }
 
-  const {handleSubmit, control, reset, trigger} = useForm({
+  const { handleSubmit, control, reset, trigger } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: initialValues,
     mode: "onBlur"
@@ -107,7 +108,7 @@ export default function ProductDetail({
   const onSubmit = async (fields) => {
     // create/update product
     if (isCreatingNew) {
-      product = await Products.Create<IProduct>({...fields.Product, DefaultPriceScheduleID: defaultPriceSchedule.ID})
+      product = await Products.Create<IProduct>({ ...fields.Product, DefaultPriceScheduleID: defaultPriceSchedule.ID })
     } else {
       const productDiff = getObjectDiff(product, fields.Product)
       product = await Products.Patch<IProduct>(product.ID, {
@@ -131,7 +132,7 @@ export default function ProductDetail({
     }
 
     // patch product with default price schedule
-    product = await Products.Patch<IProduct>(product.ID, {DefaultPriceScheduleID: defaultPriceSchedule.ID})
+    product = await Products.Patch<IProduct>(product.ID, { DefaultPriceScheduleID: defaultPriceSchedule.ID })
 
     successToast({
       description: isCreatingNew ? "ProductCreated" : "Product updated"
@@ -142,7 +143,7 @@ export default function ProductDetail({
     }
   }
 
-  const SimpleCard = (props: {title?: string; children: React.ReactElement}) => (
+  const SimpleCard = (props: { title?: string; children: React.ReactElement }) => (
     <Card>
       <CardHeader>{props.title && <Heading size="md">{props.title}</Heading>}</CardHeader>
       <CardBody>{props.children}</CardBody>
@@ -174,7 +175,7 @@ export default function ProductDetail({
             <TabPanels>
               {viewVisibility.Details && (
                 <TabPanel p={0} mt={6}>
-                  <Flex gap={6} flexFlow={{base: "column", xl: "row nowrap"}}>
+                  <Flex gap={6} flexFlow={{ base: "column", xl: "row nowrap" }}>
                     <Flex flexFlow="column" flexGrow="1" gap={6} flexWrap="wrap">
                       <SimpleCard title="Details">
                         <DetailsForm control={control} />
@@ -182,7 +183,7 @@ export default function ProductDetail({
                       <SimpleCard title="Description">
                         <DescriptionForm control={control} />
                       </SimpleCard>
-                      <SimpleGrid gridTemplateColumns={{md: "1fr 1fr"}} gap={6}>
+                      <SimpleGrid gridTemplateColumns={{ md: "1fr 1fr" }} gap={6}>
                         <SimpleCard title="Unit of Measure">
                           <UnitOfMeasureForm control={control} />
                         </SimpleCard>
@@ -382,7 +383,7 @@ export default function ProductDetail({
         ) : (
           <Flex flexWrap="wrap">
             {viewVisibility.Details && (
-              <Card width={{base: "100%", xl: "50%"}}>
+              <Card width={{ base: "100%", xl: "50%" }}>
                 <CardHeader>
                   <Heading>Details</Heading>
                 </CardHeader>
@@ -400,7 +401,7 @@ export default function ProductDetail({
               </Card>
             )}
             {viewVisibility.Pricing && (
-              <Card width={{base: "100%", xl: "50%"}}>
+              <Card width={{ base: "100%", xl: "50%" }}>
                 <CardHeader>
                   <Heading>Pricing</Heading>
                 </CardHeader>
@@ -414,7 +415,7 @@ export default function ProductDetail({
               </Card>
             )}
             {viewVisibility.Variants && (
-              <Card width={{base: "100%", xl: "50%"}}>
+              <Card width={{ base: "100%", xl: "50%" }}>
                 <CardHeader>
                   <Heading>Variants</Heading>
                 </CardHeader>
@@ -422,7 +423,7 @@ export default function ProductDetail({
               </Card>
             )}
             {viewVisibility.Media && (
-              <Card width={{base: "100%", xl: "50%"}}>
+              <Card width={{ base: "100%", xl: "50%" }}>
                 <CardHeader>
                   <Heading>Media</Heading>
                 </CardHeader>
@@ -430,7 +431,7 @@ export default function ProductDetail({
               </Card>
             )}
             {viewVisibility.Facets && (
-              <Card width={{base: "100%", xl: "50%"}}>
+              <Card width={{ base: "100%", xl: "50%" }}>
                 <CardHeader>
                   <Heading>Facets</Heading>
                 </CardHeader>
@@ -438,7 +439,7 @@ export default function ProductDetail({
               </Card>
             )}
             {viewVisibility.Customization && (
-              <Card width={{base: "100%", xl: "50%"}}>
+              <Card width={{ base: "100%", xl: "50%" }}>
                 <CardHeader>
                   <Heading>Customization</Heading>
                 </CardHeader>
@@ -446,7 +447,7 @@ export default function ProductDetail({
               </Card>
             )}
             {viewVisibility.SEO && (
-              <Card width={{base: "100%", xl: "50%"}}>
+              <Card width={{ base: "100%", xl: "50%" }}>
                 <CardHeader>
                   <Heading>SEO</Heading>
                 </CardHeader>

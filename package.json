@@ -1,11 +1,11 @@
 {
-  "name": "ocsellerapp",
+  "name": "CommerceReactAdmin",
   "version": "1.0.0-alpha.2",
   "private": true,
-  "author": "ghaeger",
+  "author": "Sitecore",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "cross-env next dev -p 3003",
+    "build": "cross-env next build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint",

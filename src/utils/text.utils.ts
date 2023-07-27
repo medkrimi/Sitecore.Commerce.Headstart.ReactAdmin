@@ -14,9 +14,11 @@ export const textHelper = {
  * https://date-fns.org/v2.29.2/docs/format
  */
 function stripHTML(myString: string) {
-  const regex = /(&nbsp;|<([^>]+)>)/gi
-  const strippedHTML = myString.replace(regex, "")
-  return strippedHTML
+  if (myString && myString.length > 0){
+    const regex = /(&nbsp;|<([^>]+)>)/gi
+  return myString.replace(regex, "")
+  }
+  return ""  
 }
 
 function formatTextTruncate(len: number, str: string, ending: string): string {

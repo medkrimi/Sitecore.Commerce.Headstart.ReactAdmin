@@ -1,12 +1,20 @@
-import {Button, Flex, HStack, SimpleGrid} from "@chakra-ui/react"
-import Link from "next/link"
-// import Link from "../../navigation/Link"
-import {FC} from "react"
+import { Button, Flex, HStack, SimpleGrid } from "@chakra-ui/react"
+
 import DebouncedSearchInput from "../../shared/DebouncedSearchInput/DebouncedSearchInput"
-import {ListViewChildrenProps} from "../../shared/ListView/ListView"
+import { FC } from "react"
+import Link from "next/link"
+import { ListViewChildrenProps } from "../../shared/ListView/ListView"
 import ListViewMetaInfo from "../../shared/ListViewMetaInfo/ListViewMetaInfo"
 import ProductListActions from "./ProductListActions"
 import ProductStatusFilter from "./ProductStatusFilter"
+
+// import Link from "../../navigation/Link"
+
+
+
+
+
+
 
 interface ProductListToolbarProps extends Omit<ListViewChildrenProps, "renderContent"> {
   onBulkPromote: () => void
@@ -35,7 +43,9 @@ const ProductListToolbar: FC<ProductListToolbarProps> = ({
       <DebouncedSearchInput label="Search products" value={queryParams["Search"]} onSearch={updateQuery("s", true)} />
       <SimpleGrid gridTemplateColumns={"1fr 1fr"} gap={2} alignItems={"stretch"}>
         <ProductStatusFilter value={filterParams["Active"]} onChange={updateQuery("active", true)} />
-        <ProductListActions selected={selected} onBulkPromote={onBulkPromote} onBulkEdit={onBulkEdit} />
+        <ProductListActions selected={selected} onBulkPromote={onBulkPromote} onBulkEdit={onBulkEdit} onBulkDelete={function (): void {
+          throw new Error("Function not implemented.")
+        }} />
       </SimpleGrid>
       <HStack ml="auto">
         {meta && <ListViewMetaInfo range={meta.ItemRange} total={meta.TotalCount} />}
