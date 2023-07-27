@@ -65,7 +65,7 @@
     "@types/react-table": "^7.7.12",
     "cross-env": "^7.0.3",
     "eslint": "^8.23.0",
-    "eslint-config-next": "^12.2.0",
+    "eslint-config-next": "^12.3.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-sznm": "^1.0.0",
     "eslint-plugin-prettier": "^4.2.1",
