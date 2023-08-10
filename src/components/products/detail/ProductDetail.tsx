@@ -19,40 +19,41 @@ import {
   Text,
   useDisclosure
 } from "@chakra-ui/react"
-import {yupResolver} from "@hookform/resolvers/yup"
-import {useRouter} from "hooks/useRouter"
-import {useErrorToast, useSuccessToast, useToast} from "hooks/useToast"
-import {cloneDeep, invert} from "lodash"
-import {Products, ProductCatalogAssignment} from "ordercloud-javascript-sdk"
-import {useEffect, useState} from "react"
-import {useForm} from "react-hook-form"
-import {TbEdit, TbTrash} from "react-icons/tb"
-import {IPriceSchedule} from "types/ordercloud/IPriceSchedule"
-import {IProduct} from "types/ordercloud/IProduct"
-import {IProductFacet} from "types/ordercloud/IProductFacet"
-import {ISpec} from "types/ordercloud/ISpec"
-import {IVariant} from "types/ordercloud/IVariant"
-import {makeNestedObject, withDefaultValuesFallback} from "utils"
-import ProductXpModal from "../modals/ProductXpModal"
+import { ProductCatalogAssignment, Products } from "ordercloud-javascript-sdk"
+import { TbEdit, TbTrash } from "react-icons/tb"
+import { cloneDeep, invert } from "lodash"
+import { defaultValues, tabFieldNames, validationSchema } from "./forms/meta"
+import { makeNestedObject, withDefaultValuesFallback } from "utils"
+import { useEffect, useState } from "react"
+import { useErrorToast, useSuccessToast, useToast } from "hooks/useToast"
+
+import { CatalogForm } from "./forms/CatalogForm/CatalogForm"
+import { CategoryForm } from "./forms/CategoryForm/CategoryForm"
+import { DescriptionForm } from "./forms/DescriptionForm/DescriptionForm"
+import { DetailsForm } from "./forms/DetailsForm/DetailsForm"
+import { FacetsForm } from "./forms/FacetsForm/FacetsForm"
+import { ICategoryProductAssignment } from "types/ordercloud/ICategoryProductAssignment"
+import { IPriceSchedule } from "types/ordercloud/IPriceSchedule"
+import { IProduct } from "types/ordercloud/IProduct"
+import { IProductFacet } from "types/ordercloud/IProductFacet"
+import { ISpec } from "types/ordercloud/ISpec"
+import { IVariant } from "types/ordercloud/IVariant"
 import ImagePreview from "./ImagePreview"
-import {ProductDetailTab} from "./ProductDetailTab"
+import { InventoryForm } from "./forms/InventoryForm/InventoryForm"
+import { MediaForm } from "./forms/MediaForm/MediaForm"
+import { PricingForm } from "./forms/PricingForm/PricingForm"
+import { ProductDetailTab } from "./ProductDetailTab"
 import ProductDetailToolbar from "./ProductDetailToolbar"
-import {DescriptionForm} from "./forms/DescriptionForm/DescriptionForm"
-import {DetailsForm} from "./forms/DetailsForm/DetailsForm"
-import {FacetsForm} from "./forms/FacetsForm/FacetsForm"
-import {InventoryForm} from "./forms/InventoryForm/InventoryForm"
-import {MediaForm} from "./forms/MediaForm/MediaForm"
-import {PricingForm} from "./forms/PricingForm/PricingForm"
-import {ShippingForm} from "./forms/ShippingForm/ShippingForm"
-import {UnitOfMeasureForm} from "./forms/UnitOfMeasureForm/UnitOfMeasureForm"
-import {defaultValues, tabFieldNames, validationSchema} from "./forms/meta"
-import {SpecTable} from "./variants/SpecTable"
-import {submitProduct} from "services/product-submit.service"
-import {VariantTable} from "./variants/VariantTable"
-import {fetchVariants} from "services/product-data-fetcher.service"
-import {CatalogForm} from "./forms/CatalogForm/CatalogForm"
-import {CategoryForm} from "./forms/CategoryForm/CategoryForm"
-import {ICategoryProductAssignment} from "types/ordercloud/ICategoryProductAssignment"
+import ProductXpModal from "../modals/ProductXpModal"
+import { ShippingForm } from "./forms/ShippingForm/ShippingForm"
+import { SpecTable } from "./variants/SpecTable"
+import { UnitOfMeasureForm } from "./forms/UnitOfMeasureForm/UnitOfMeasureForm"
+import { VariantTable } from "./variants/VariantTable"
+import { fetchVariants } from "services/product-data-fetcher.service"
+import { submitProduct } from "services/product-submit.service"
+import { useForm } from "react-hook-form"
+import { useRouter } from "hooks/useRouter"
+import { yupResolver } from "@hookform/resolvers/yup"
 
 export type ProductDetailTab = "Details" | "Pricing" | "Catalogs" | "Variants" | "Media" | "Facets" | "Customization"
 
@@ -103,8 +104,8 @@ export default function ProductDetail({
   const errorToast = useErrorToast()
   const toast = useToast()
   const [tabIndex, setTabIndex] = useState(tabIndexMap[initialTab])
-  const [liveXp, setLiveXp] = useState<{[key: string]: any}>(product?.xp)
-  const [nonUiXp, setNonUiXp] = useState<{[key: string]: any}>({})
+  const [liveXp, setLiveXp] = useState<{ [key: string]: any }>(product?.xp)
+  const [nonUiXp, setNonUiXp] = useState<{ [key: string]: any }>({})
   const xpDisclosure = useDisclosure()
   const isCreatingNew = !Boolean(product?.ID)
   const initialViewVisibility: Record<ProductDetailTab, boolean> = {
@@ -124,27 +125,27 @@ export default function ProductDetail({
 
   const initialValues = product
     ? withDefaultValuesFallback(
-        {
-          Product: cloneDeep(product),
-          DefaultPriceSchedule: cloneDeep(defaultPriceSchedule),
-          Specs: cloneDeep(specs),
-          Variants: cloneDeep(variants),
-          OverridePriceSchedules: cloneDeep(overridePriceSchedules),
-          CatalogAssignments: cloneDeep(catalogAssignments),
-          CategoryAssignments: cloneDeep(categoryAssignments)
-        },
-        defaultValues
-      )
+      {
+        Product: cloneDeep(product),
+        DefaultPriceSchedule: cloneDeep(defaultPriceSchedule),
+        Specs: cloneDeep(specs),
+        Variants: cloneDeep(variants),
+        OverridePriceSchedules: cloneDeep(overridePriceSchedules),
+        CatalogAssignments: cloneDeep(catalogAssignments),
+        CategoryAssignments: cloneDeep(categoryAssignments)
+      },
+      defaultValues
+    )
     : makeNestedObject(defaultValues)
 
-  const {handleSubmit, control, reset, trigger} = useForm({
+  const { handleSubmit, control, reset, trigger } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: initialValues,
     mode: "onBlur"
   })
 
   const handleTabsChange = (index) => {
-    router.push({query: {...router.query, tab: inverseTabIndexMap[index]}}, undefined, {shallow: true})
+    router.push({ query: { ...router.query, tab: inverseTabIndexMap[index] } }, undefined, { shallow: true })
     setTabIndex(index)
   }
 
@@ -179,7 +180,7 @@ export default function ProductDetail({
       description: isCreatingNew ? "Product Created" : "Product updated"
     })
     if (didUpdateSpecs && updatedSpecs?.length) {
-      toast({status: "info", description: "It looks like you updated specs. You may wish to regenerate variants"})
+      toast({ status: "info", description: "It looks like you updated specs. You may wish to regenerate variants" })
     }
 
     if (isCreatingNew) {
@@ -213,7 +214,7 @@ export default function ProductDetail({
   }
 
   const handleGenerateVariants = async (shouldOverwrite: boolean) => {
-    const updatedProduct = await Products.GenerateVariants(product.ID, {overwriteExisting: shouldOverwrite})
+    const updatedProduct = await Products.GenerateVariants(product.ID, { overwriteExisting: shouldOverwrite })
     const updatedVariants = await fetchVariants(updatedProduct)
     setVariants(updatedVariants)
     // reset the form with new product data
@@ -232,16 +233,16 @@ export default function ProductDetail({
   }
 
   const onInvalid = (errors) => {
-    errorToast({title: "Form errors", description: "Please resolve the errors and try again."})
+    errorToast({ title: "Form errors", description: "Please resolve the errors and try again." })
   }
 
   const handleXpRemoval = async (key: string) => {
     const newXp = cloneDeep(liveXp)
     delete newXp[key]
     // First patch xp to null
-    await Products.Patch(product?.ID, {xp: null})
+    await Products.Patch(product?.ID, { xp: null })
     // Then patch xp back to the state without the respective removed key
-    const patchedProduct = await Products.Patch(product?.ID, {xp: newXp})
+    const patchedProduct = await Products.Patch(product?.ID, { xp: newXp })
     // Then set nonUiXp again with the new state.
     successToast({
       description: "Extended property successfully removed. It may take up to 10 minutes to see the change propagate."
@@ -257,7 +258,7 @@ export default function ProductDetail({
           <Text fontSize="sm" color="gray.400" fontWeight="normal">
             Define custom properties for your product
           </Text>
-          <Button variant="outline" colorScheme="accent" ml={{md: "auto"}} onClick={() => xpDisclosure.onOpen()}>
+          <Button variant="outline" colorScheme="accent" ml={{ md: "auto" }} onClick={() => xpDisclosure.onOpen()}>
             Add {Object.keys(nonUiXp).length > 0 && "additional"} property
           </Button>
         </CardHeader>
@@ -279,7 +280,7 @@ export default function ProductDetail({
                   gridTemplateColumns={"auto 2fr 2fr"}
                   justifyContent="flex-start"
                   w={"full"}
-                  maxW={{xl: "75%"}}
+                  maxW={{ xl: "75%" }}
                 >
                   <Hide below="lg">
                     <ButtonGroup size="xs" mr={2} alignItems="center">
@@ -304,10 +305,10 @@ export default function ProductDetail({
                   <Hide above="lg">
                     <ButtonGroup
                       size="sm"
-                      mr={{base: 3, md: 6}}
-                      flexDirection={{base: "column", md: "row"}}
-                      padding={{base: 1, md: 0}}
-                      alignItems={{base: "flex-start", md: "center"}}
+                      mr={{ base: 3, md: 6 }}
+                      flexDirection={{ base: "column", md: "row" }}
+                      padding={{ base: 1, md: 0 }}
+                      alignItems={{ base: "flex-start", md: "center" }}
                       gap={2}
                       alignSelf="center"
                     >
@@ -374,15 +375,18 @@ export default function ProductDetail({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product])
 
-  const getNonUiXp = (xp: {[key: string]: any}): {[key: string]: any} => {
+  const getNonUiXp = (xp: { [key: string]: any }): { [key: string]: any } => {
     if (isCreatingNew) return {}
     const uiXpFields = Object.values(tabFieldNames)
       .flat()
       .filter((field) => field.includes(".xp."))
       .map((xp) => xp?.split(".")?.at(2))
     const productXp = cloneDeep(xp)
-    uiXpFields.forEach((f) => delete productXp[f])
-    return productXp
+    if (productXp) {
+      uiXpFields.forEach((f) => delete productXp[f])
+      return productXp
+    }
+    return {}
   }
 
   const creatingNewXpCard = () => (
@@ -421,7 +425,7 @@ export default function ProductDetail({
             <TabPanels>
               {viewVisibility.Details && (
                 <TabPanel p={0} mt={6}>
-                  <Flex gap={6} flexFlow={{base: "column", xl: "row nowrap"}}>
+                  <Flex gap={6} flexFlow={{ base: "column", xl: "row nowrap" }}>
                     <Flex flexFlow="column" flexGrow="1" gap={6} flexWrap="wrap">
                       <SimpleCard title="Details">
                         <DetailsForm control={control} />
@@ -429,7 +433,7 @@ export default function ProductDetail({
                       <SimpleCard title="Description">
                         <DescriptionForm control={control} />
                       </SimpleCard>
-                      <SimpleGrid gridTemplateColumns={{md: "1fr 1fr"}} gap={6}>
+                      <SimpleGrid gridTemplateColumns={{ md: "1fr 1fr" }} gap={6}>
                         <SimpleCard title="Unit of Measure">
                           <UnitOfMeasureForm control={control} />
                         </SimpleCard>
@@ -504,7 +508,7 @@ export default function ProductDetail({
         ) : (
           <Flex flexWrap="wrap">
             {viewVisibility.Details && (
-              <Box width={{base: "100%", xl: "50%"}}>
+              <Box width={{ base: "100%", xl: "50%" }}>
                 <Card margin={3}>
                   <CardHeader>
                     <Heading>Details</Heading>
@@ -524,7 +528,7 @@ export default function ProductDetail({
               </Box>
             )}
             {viewVisibility.Media && (
-              <Box width={{base: "100%", xl: "50%"}}>
+              <Box width={{ base: "100%", xl: "50%" }}>
                 <Card margin={3}>
                   <CardHeader>
                     <Heading>Media</Heading>
@@ -565,7 +569,7 @@ export default function ProductDetail({
               </Box>
             )}
             {viewVisibility.Variants && (
-              <Box width={{base: "100%", xl: "50%"}}>
+              <Box width={{ base: "100%", xl: "50%" }}>
                 <Card margin={3}>
                   <CardHeader>
                     <Heading>Variants</Heading>
@@ -586,7 +590,7 @@ export default function ProductDetail({
             )}
 
             {viewVisibility.Facets && (
-              <Box width={{base: "100%", xl: "50%"}}>
+              <Box width={{ base: "100%", xl: "50%" }}>
                 <Card margin={3}>
                   <CardHeader>
                     <Heading>Facets</Heading>
@@ -597,7 +601,7 @@ export default function ProductDetail({
                 </Card>
               </Box>
             )}
-            <Box width={{base: "100%", xl: "50%"}}>
+            <Box width={{ base: "100%", xl: "50%" }}>
               <Box margin={3}>
                 {viewVisibility.Customization && !isCreatingNew && xpCard()}
                 {viewVisibility.Customization && isCreatingNew && creatingNewXpCard()}
@@ -625,7 +629,7 @@ export default function ProductDetail({
   )
 }
 
-function SimpleCard(props: {title?: string; children: React.ReactElement}) {
+function SimpleCard(props: { title?: string; children: React.ReactElement }) {
   return (
     <Card margin={3}>
       <CardHeader>{props.title && <Heading size="md">{props.title}</Heading>}</CardHeader>
