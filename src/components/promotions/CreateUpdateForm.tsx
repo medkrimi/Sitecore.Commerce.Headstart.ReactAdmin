@@ -1,9 +1,16 @@
 import * as Yup from "yup"
+
 import {
   Box,
   Button,
   ButtonGroup,
+  Card,
+  CardBody,
+  CardHeader,
+  Container,
   Divider,
+  Flex,
+  FormControl,
   FormLabel,
   Grid,
   GridItem,
@@ -20,34 +27,39 @@ import {
   Radio,
   Select,
   SimpleGrid,
+  Text,
   UnorderedList,
-  Card,
-  CardBody,
-  CardHeader,
-  Container,
-  Flex,
-  FormControl,
-  VStack,
-  Text
+  VStack
 } from "@chakra-ui/react"
-import {DeleteIcon} from "@chakra-ui/icons"
-import {InputControl, RadioGroupControl, SwitchControl, TextareaControl} from "components/react-hook-form"
-import {Tab, TabList, TabPanel, TabPanels, Tabs} from "@chakra-ui/react"
-import {useEffect, useState} from "react"
-// import Card from "../card/Card"
+import { InputControl, RadioGroupControl, SwitchControl, TextareaControl } from "components/react-hook-form"
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
+import { useEffect, useState } from "react"
+
 import DatePicker from "../datepicker/DatePicker"
-import {ExpressionBuilder} from "./ExpressionBuilder"
-import {Promotion, Promotions} from "ordercloud-javascript-sdk"
-import {useRouter} from "hooks/useRouter"
-import {useCreateUpdateForm} from "hooks/useCreateUpdateForm"
-import {IPromotion} from "types/ordercloud/IPromotion"
-import {yupResolver} from "@hookform/resolvers/yup"
-import {useForm} from "react-hook-form"
-import {emptyStringToNull} from "utils"
+import { DeleteIcon } from "@chakra-ui/icons"
+import { ExpressionBuilder } from "./ExpressionBuilder"
+import { IPromotion } from "types/ordercloud/IPromotion"
 import ResetButton from "../react-hook-form/reset-button"
 import SubmitButton from "../react-hook-form/submit-button"
+import { emptyStringToNull } from "utils"
+import { useCreateUpdateForm } from "hooks/useCreateUpdateForm"
+import { useForm } from "react-hook-form"
+import { useRouter } from "hooks/useRouter"
+import { yupResolver } from "@hookform/resolvers/yup"
 
-export {CreateUpdateForm}
+// import Card from "../card/Card"
+
+
+
+
+
+
+
+
+
+
+
+export { CreateUpdateForm }
 
 interface CreateUpdateFormProps {
   promotion?: Promotion
@@ -97,7 +109,7 @@ const EligibleExpressionField = (props) => {
   return <div></div>
 }
 
-function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
+function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
   const formShape = {
     Name: Yup.string().max(100),
     Code: Yup.string().max(100).required("Code is required"),
@@ -108,16 +120,16 @@ function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
     Description: Yup.string().max(100),
     xp_MinReqValue: Yup.number().transform(emptyStringToNull).nullable().typeError("You must specify a number")
   }
-  const {isCreating, successToast, errorToast, validationSchema, defaultValues, onSubmit} =
+  const { isCreating, successToast, errorToast, validationSchema, defaultValues, onSubmit } =
     useCreateUpdateForm<Promotion>(promotion, formShape, createPromotion, updatePromotion)
 
   const {
     watch,
     handleSubmit,
     control,
-    formState: {isSubmitting},
+    formState: { isSubmitting },
     reset
-  } = useForm({resolver: yupResolver(validationSchema), defaultValues, mode: "onBlur"})
+  } = useForm({ resolver: yupResolver(validationSchema), defaultValues, mode: "onBlur" })
 
   // TODO: this is not very performant, do we really need the values displayed?
   const values = watch() as any
@@ -155,7 +167,7 @@ function CreateUpdateForm({promotion}: CreateUpdateFormProps) {
     }
   }
 
-  const SimpleCard = (props: {title?: string; children: React.ReactElement}) => (
+  const SimpleCard = (props: { title?: string; children: React.ReactElement }) => (
     <Card>
       <CardHeader>{props.title && <Heading size="md">{props.title}</Heading>}</CardHeader>
       <CardBody>{props.children}</CardBody>
