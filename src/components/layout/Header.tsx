@@ -1,6 +1,8 @@
-import {HStack, useColorModeValue, Container} from "@chakra-ui/react"
+import { Container, HStack, useColorModeValue } from "@chakra-ui/react"
+
 import AcountNavigation from "components/navigation/AcountNavigation"
-import {MyCommerceLogo} from "../branding/MyCommerceLogo"
+import HeaderLogo from "../branding/HeaderLogo"
+import { MyCommerceLogo } from "../branding/MyCommerceLogo"
 
 const Header = () => {
   return (
@@ -16,7 +18,7 @@ const Header = () => {
       borderColor="st.borderColor"
     >
       <HStack justifyContent="space-between" alignItems={"center"} h="headerHeight" px={4}>
-        <MyCommerceLogo />
+        <HeaderLogo />
         <AcountNavigation />
       </HStack>
     </Container>

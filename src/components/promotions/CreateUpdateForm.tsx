@@ -31,39 +31,37 @@ import {
   UnorderedList,
   VStack
 } from "@chakra-ui/react"
-import { InputControl, RadioGroupControl, SwitchControl, TextareaControl } from "components/react-hook-form"
+import { ChangeEvent, useEffect, useState } from "react"
+import { Controller, useController, useForm } from "react-hook-form"
+import { InputControl, RadioGroupControl, SelectControl, SwitchControl, TextareaControl } from "components/react-hook-form"
+import { Promotion, Promotions } from "ordercloud-javascript-sdk"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
-import { useEffect, useState } from "react"
+import { appPredefinedPromotions, appPredefinedPromotionsGrouped } from "../../constants/app-promotions.config"
 
 import DatePicker from "../datepicker/DatePicker"
 import { DeleteIcon } from "@chakra-ui/icons"
-import { ExpressionBuilder } from "./ExpressionBuilder"
 import { IPromotion } from "types/ordercloud/IPromotion"
 import ResetButton from "../react-hook-form/reset-button"
 import SubmitButton from "../react-hook-form/submit-button"
+import { ValueSelector } from "react-querybuilder"
 import { emptyStringToNull } from "utils"
 import { useCreateUpdateForm } from "hooks/useCreateUpdateForm"
-import { useForm } from "react-hook-form"
 import { useRouter } from "hooks/useRouter"
 import { yupResolver } from "@hookform/resolvers/yup"
 
 // import Card from "../card/Card"
-
-
-
-
-
-
-
-
-
-
 
 export { CreateUpdateForm }
 
 interface CreateUpdateFormProps {
   promotion?: Promotion
 }
+
+
+
+
+
+
 
 const EligibleExpressionField = (props) => {
   // TODO: fix this
@@ -123,14 +121,57 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
   const { isCreating, successToast, errorToast, validationSchema, defaultValues, onSubmit } =
     useCreateUpdateForm<Promotion>(promotion, formShape, createPromotion, updatePromotion)
 
+
   const {
     watch,
     handleSubmit,
     control,
     formState: { isSubmitting },
     reset
-  } = useForm({ resolver: yupResolver(validationSchema), defaultValues, mode: "onBlur" })
+  } = useForm<Promotion>({ resolver: yupResolver(validationSchema), defaultValues, mode: "onBlur" })
 
+
+  function SelectPromoExpressions({ control, name }) {
+
+    const {
+      field: EligibleExpressionField,
+    } = useController({
+      name: "EligibleExpression",
+      control,
+    });
+
+    const {
+      field: ValueExpressionField,
+    } = useController({
+      name: "ValueExpression",
+      control,
+    });
+
+    return (
+      <Select
+        name="template"
+        onChange={(e) => {
+          e.preventDefault()
+          const value = (e.target as HTMLSelectElement).value
+          const promo = appPredefinedPromotions.find((item) => item.Name === value)
+          EligibleExpressionField.onChange(promo?.EligibleExpression)
+          ValueExpressionField.onChange(promo?.ValueExpression)
+          return { value: promo.Name }
+        }}
+      >
+        {Object.keys(appPredefinedPromotionsGrouped).map((group, index) => (
+          <optgroup key={index} label={group}>
+            {appPredefinedPromotionsGrouped[group].map((promo, _key) => (
+              <option key={promo.Name}>{promo.Name}</option>
+            ))}
+          </optgroup>
+        ))}
+      </Select>
+    );
+  }
+
+  // Hack to fix demo
+  const _control = control as any
   // TODO: this is not very performant, do we really need the values displayed?
   const values = watch() as any
 
@@ -180,10 +221,10 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
         <Box as="form" noValidate onSubmit={handleSubmit(onSubmit)}>
           <Box>
             <ButtonGroup>
-              <SubmitButton control={control} variant="solid" colorScheme="primary">
+              <SubmitButton control={_control} variant="solid" colorScheme="primary">
                 Save
               </SubmitButton>
-              <ResetButton control={control} reset={reset} variant="outline">
+              <ResetButton control={_control} reset={reset} variant="outline">
                 Discard Changes
               </ResetButton>
               <Button onClick={() => router.push(`/promotions`)} variant="outline" isLoading={isSubmitting}>
@@ -212,8 +253,8 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                     <Card p={6}>
                       <SimpleGrid columns={2} spacing={10}>
                         <Flex flexFlow="column nowrap" gap={4}>
-                          <InputControl name="Name" label="Promotion Name" helperText="" control={control} />
-                          <TextareaControl name="Description" label="Description" control={control} />
+                          <InputControl name="Name" label="Promotion Name" helperText="" control={_control} />
+                          <TextareaControl name="Description" label="Description" control={_control} />
                           <FormControl>
                             <FormLabel>Start Date</FormLabel>
                             <DatePicker selectedDate={startDate} onChange={setStartDate} />
@@ -229,8 +270,8 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                           </NumberInput>
 
                           <HStack spacing={6}>
-                            <SwitchControl name="Active" label="Active" control={control} />
-                            <SwitchControl name="AutoApply" label="Auto Apply" control={control} />
+                            <SwitchControl name="Active" label="Active" control={_control} />
+                            <SwitchControl name="AutoApply" label="Auto Apply" control={_control} />
                           </HStack>
 
                           <label htmlFor="Priority">Priority</label>
@@ -243,9 +284,9 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                           </NumberInput>
                         </Flex>
                         <Box>
-                          <InputControl name="Code" label="Coupon Code" helperText="" control={control} isRequired />
+                          <InputControl name="Code" label="Coupon Code" helperText="" control={_control} isRequired />
 
-                          <TextareaControl name="FinePrint" label="Fine Print" control={control} />
+                          <TextareaControl name="FinePrint" label="Fine Print" control={_control} />
 
                           <FormLabel>End Date</FormLabel>
                           <DatePicker selectedDate={endDate} onChange={setEndDate} />
@@ -261,9 +302,9 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                           </NumberInput>
 
                           <VStack mt={6} spacing={6}>
-                            <SwitchControl name="LineItemLevel" label="Line Item Level" control={control} />
-                            <SwitchControl name="CanCombine" label="Can be combined" control={control} />
-                            <SwitchControl name="AllowAllBuyers" label="Allow all buyers" control={control} />
+                            <SwitchControl name="LineItemLevel" label="Line Item Level" control={_control} />
+                            <SwitchControl name="CanCombine" label="Can be combined" control={_control} />
+                            <SwitchControl name="AllowAllBuyers" label="Allow all buyers" control={_control} />
                           </VStack>
                         </Box>
                       </SimpleGrid>
@@ -273,14 +314,14 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                     <Card p={6}>
                       <SimpleGrid columns={2} spacing={10}>
                         <VStack>
-                          <RadioGroupControl name="xp_MinimumReq" label="Minimum requirment" control={control}>
+                          <RadioGroupControl name="xp_MinimumReq" label="Minimum requirment" control={_control}>
                             <VStack alignItems={"flex-start"}>
                               <Radio value="none">None</Radio>
                               <Radio value="min-amount">Minimum purchase amount</Radio>
                               <Radio value="min-qty">Minimum quantity of items</Radio>
                             </VStack>
                           </RadioGroupControl>
-                          <InputControl name="xp_MinReqValue" placeholder="Enter amount" control={control} />
+                          <InputControl name="xp_MinReqValue" placeholder="Enter amount" control={_control} />
                           <FormControl>
                             <FormLabel htmlFor="xp_ScopeTo">Eligibility / Scope to</FormLabel>
                             <Select name="xp_ScopeTo" id="xp_ScopeTo" placeholder="Select option">
@@ -293,7 +334,7 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                           </FormControl>
                         </VStack>
                         <Box>
-                          <RadioGroupControl name="xp_Type" label="Promotion Type" control={control}>
+                          <RadioGroupControl name="xp_Type" label="Promotion Type" control={_control}>
                             <Radio value="Percentage">Percentage</Radio>
                             <Radio value="Fixed">Fixed Amount</Radio>
                             <Radio value="Free-shipping">Free Shipping</Radio>
@@ -305,7 +346,7 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                               <InputLeftElement pointerEvents="none" color="gray.300" fontSize="1.2em">
                                 {values.xp_Type === "Percentage" ? "%" : "$"}
                               </InputLeftElement>
-                              <InputControl name="xp_Value" placeholder="Enter amount" control={control} />
+                              <InputControl name="xp_Value" placeholder="Enter amount" control={_control} />
                             </InputGroup>
                           )}
                         </Box>
@@ -315,10 +356,14 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                   <TabPanel p={0}>
                     <Card p={6} gap={6}>
                       <SimpleGrid columns={2} spacing={10}>
-                        <EligibleExpressionField name="EligibleExpression" label="Eligible Expression" isRequired />
-                        <TextareaControl name="ValueExpression" label="Value Expression" control={control} isRequired />
+                        <TextareaControl name="EligibleExpression" label="Eligible Expression" control={_control} isRequired />
+                        <TextareaControl name="ValueExpression" label="Value Expression" control={_control} isRequired />
                       </SimpleGrid>
-                      <ExpressionBuilder />
+                      <Box>
+                        <label>Predefined Promotion Templates</label>
+                        <SelectPromoExpressions name="Demo" control={_control} />
+                      </Box>
+
                     </Card>
                   </TabPanel>
                   <TabPanel p={0}>
@@ -354,7 +399,7 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
             </Tabs>
           </Box>
         </Box>
-      </Container>
+      </Container >
     </>
   )
 }
