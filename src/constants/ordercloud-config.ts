@@ -19,7 +19,7 @@ export interface OcConfig {
 }
 
 const ocConfig: OcConfig = {
-  clientId: process.env.NEXT_PUBLIC_OC_CLIENT_ID || "3C4737C7-0EAF-4E56-9ABE-379DFE900929",
+  clientId: process.env.NEXT_PUBLIC_OC_CLIENT_ID || "147BBCE2-6B4D-4575-98A1-E32FF973EB37",
   marketplaceId: process.env.NEXT_PUBLIC_OC_MARKETPLACE_ID,
   baseApiUrl: process.env.NEXT_PUBLIC_OC_API_URL || "https://sandboxapi.ordercloud.io",
   scope: appRoles,
