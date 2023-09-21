@@ -116,7 +116,8 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
     EligibleExpression: Yup.string().max(400).required("Eligible Expression is required"),
     ValueExpression: Yup.string().max(400).required("Value Expression is required"),
     Description: Yup.string().max(100),
-    xp_MinReqValue: Yup.number().transform(emptyStringToNull).nullable().typeError("You must specify a number")
+    xp_MinReqValue: Yup.number().transform(emptyStringToNull).nullable().typeError("You must specify a number"),
+    ApplyToMealPlan: Yup.boolean()
   }
   const { isCreating, successToast, errorToast, validationSchema, defaultValues, onSubmit } =
     useCreateUpdateForm<Promotion>(promotion, formShape, createPromotion, updatePromotion)
@@ -239,78 +240,117 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
             <Tabs mt={6} colorScheme="accent">
               <TabList>
                 {/* This tab contains all default Promotion API options (No extended propreties) */}
-                <Tab>Default Options</Tab>
+                <Tab>Promotion Details</Tab>
                 {/* This tab contains some examples of how we can leverage XP (extended Propreties) */}
-                <Tab>Advanced Rules</Tab>
+                {/* <Tab>Advanced Rules</Tab> */}
                 {/* This tab contains another examples to show the flexibility offered by EligibleExpressions and ValueExpression Fileds. */}
-                <Tab>Expression Builder</Tab>
+                <Tab>Predefined Rules</Tab>
                 {/* This tab contains a way to add any other extended properties. */}
-                <Tab>Extended Properties (xp)</Tab>
+                {/* <Tab>Extended Properties (xp)</Tab> */}
               </TabList>
               <SimpleGrid gridTemplateColumns={"70% 1fr"} gap={6} mt={6}>
                 <TabPanels>
                   <TabPanel p={0}>
                     <Card p={6}>
-                      <SimpleGrid columns={2} spacing={10}>
+                      <SimpleGrid columns={3} spacing={10}>
                         <Flex flexFlow="column nowrap" gap={4}>
-                          <InputControl name="Name" label="Promotion Name" helperText="" control={_control} />
-                          <TextareaControl name="Description" label="Description" control={_control} />
+                          <InputControl name="Code" label="Promotion Code" helperText="" control={_control} isRequired />
+                          <InputControl name="Name" label="Prmotion Name" helperText="" control={_control} />
+                          <Divider />
                           <FormControl>
                             <FormLabel>Start Date</FormLabel>
                             <DatePicker selectedDate={startDate} onChange={setStartDate} />
+                            <input type="hidden" name="StartDate" value={startDate.toISOString()} />
                           </FormControl>
-                          <input type="hidden" name="StartDate" value={startDate.toISOString()} />
-                          <label htmlFor="RedemptionLimit">Redemption Limit</label>
-                          <NumberInput defaultValue={100} max={1000} clampValueOnBlur={false}>
-                            <NumberInputField name="RedemptionLimit" />
-                            <NumberInputStepper>
-                              <NumberIncrementStepper />
-                              <NumberDecrementStepper />
-                            </NumberInputStepper>
-                          </NumberInput>
+                          <FormControl>
+                            <FormLabel>End Date</FormLabel>
+                            <DatePicker selectedDate={endDate} onChange={setEndDate} />
+                            <input type="hidden" name="ExpirationDate" value={endDate.toISOString()} />
+                          </FormControl>
+                          <Divider />
+                          <TextareaControl name="Description" label="Description" control={_control} />
+                          <InputControl name="FinePrint" label="Fine Print" control={_control} />
+                          <Divider />
+                        </Flex>
 
-                          <HStack spacing={6}>
+                        <Flex flexFlow="column nowrap" gap={4}>
+                          <FormControl>
+                            <label htmlFor="Priority">Priority</label>
+                            <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
+                              <NumberInputField name="Priority" />
+                              <NumberInputStepper>
+                                <NumberIncrementStepper />
+                                <NumberDecrementStepper />
+                              </NumberInputStepper>
+                            </NumberInput>
+                          </FormControl>
+                          <FormControl>
+                            <label htmlFor="RedemptionLimitPerUser">Redemption Limit per user</label>
+                            <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
+                              <NumberInputField name="RedemptionLimitPerUser" />
+                              <NumberInputStepper>
+                                <NumberIncrementStepper />
+                                <NumberDecrementStepper />
+                              </NumberInputStepper>
+                            </NumberInput>
+                          </FormControl>
+                          <FormControl>
+                            <label htmlFor="RedemptionLimit">Redemption Limit</label>
+                            <NumberInput defaultValue={100} max={1000} clampValueOnBlur={false}>
+                              <NumberInputField name="RedemptionLimit" />
+                              <NumberInputStepper>
+                                <NumberIncrementStepper />
+                                <NumberDecrementStepper />
+                              </NumberInputStepper>
+                            </NumberInput>
+                          </FormControl>
+                          <Divider />
+                          <VStack mt={6} spacing={6}>
                             <SwitchControl name="Active" label="Active" control={_control} />
                             <SwitchControl name="AutoApply" label="Auto Apply" control={_control} />
-                          </HStack>
-
-                          <label htmlFor="Priority">Priority</label>
-                          <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
-                            <NumberInputField name="Priority" />
-                            <NumberInputStepper>
-                              <NumberIncrementStepper />
-                              <NumberDecrementStepper />
-                            </NumberInputStepper>
-                          </NumberInput>
-                        </Flex>
-                        <Box>
-                          <InputControl name="Code" label="Coupon Code" helperText="" control={_control} isRequired />
-
-                          <TextareaControl name="FinePrint" label="Fine Print" control={_control} />
-
-                          <FormLabel>End Date</FormLabel>
-                          <DatePicker selectedDate={endDate} onChange={setEndDate} />
-                          <input type="hidden" name="ExpirationDate" value={endDate.toISOString()} />
-
-                          <label htmlFor="RedemptionLimitPerUser">Redemption Limit per user</label>
-                          <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
-                            <NumberInputField name="RedemptionLimitPerUser" />
-                            <NumberInputStepper>
-                              <NumberIncrementStepper />
-                              <NumberDecrementStepper />
-                            </NumberInputStepper>
-                          </NumberInput>
-
-                          <VStack mt={6} spacing={6}>
                             <SwitchControl name="LineItemLevel" label="Line Item Level" control={_control} />
                             <SwitchControl name="CanCombine" label="Can be combined" control={_control} />
                             <SwitchControl name="AllowAllBuyers" label="Allow all buyers" control={_control} />
                           </VStack>
-                        </Box>
+                        </Flex>
+                        <Flex flexFlow="column nowrap" gap={4}>
+                          <SwitchControl name="ApplyToMealPlan" label="Apply to Meal Plan" control={_control} />
+                          <Divider />
+                          {values.ApplyToMealPlan ? <><FormControl>
+                            <label htmlFor="MealsPerSemester">Meals per semester</label>
+                            <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
+                              <NumberInputField name="MealsPerSemester" />
+                              <NumberInputStepper>
+                                <NumberIncrementStepper />
+                                <NumberDecrementStepper />
+                              </NumberInputStepper>
+                            </NumberInput>
+                          </FormControl>
+                            <FormControl>
+                              <label htmlFor="DinningDollars">Dinning Dollars</label>
+                              <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
+                                <NumberInputField name="DinningDollars" />
+                                <NumberInputStepper>
+                                  <NumberIncrementStepper />
+                                  <NumberDecrementStepper />
+                                </NumberInputStepper>
+                              </NumberInput>
+                            </FormControl>
+                            <FormControl>
+                              <label htmlFor="GuestMeals">Guest Meals</label>
+                              <NumberInput defaultValue={100} max={1000} clampValueOnBlur={false}>
+                                <NumberInputField name="GuestMeals" />
+                                <NumberInputStepper>
+                                  <NumberIncrementStepper />
+                                  <NumberDecrementStepper />
+                                </NumberInputStepper>
+                              </NumberInput>
+                            </FormControl></> : <></>}
+                        </Flex>
                       </SimpleGrid>
                     </Card>
                   </TabPanel>
-                  <TabPanel p={0}>
+                  {/* <TabPanel p={0}>
                     <Card p={6}>
                       <SimpleGrid columns={2} spacing={10}>
                         <VStack>
@@ -352,27 +392,26 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                         </Box>
                       </SimpleGrid>
                     </Card>
-                  </TabPanel>
+                  </TabPanel> */}
                   <TabPanel p={0}>
                     <Card p={6} gap={6}>
-                      <SimpleGrid columns={2} spacing={10}>
-                        <TextareaControl name="EligibleExpression" label="Eligible Expression" control={_control} isRequired />
-                        <TextareaControl name="ValueExpression" label="Value Expression" control={_control} isRequired />
-                      </SimpleGrid>
                       <Box>
                         <label>Predefined Promotion Templates</label>
                         <SelectPromoExpressions name="Demo" control={_control} />
                       </Box>
-
+                      <SimpleGrid columns={2} spacing={10}>
+                        <TextareaControl name="EligibleExpression" label="Eligible Expression" control={_control} isRequired />
+                        <TextareaControl name="ValueExpression" label="Value Expression" control={_control} isRequired />
+                      </SimpleGrid>
                     </Card>
                   </TabPanel>
-                  <TabPanel p={0}>
+                  {/* <TabPanel p={0}>
                     <Text>Under construction</Text>
                     {/* <Card p={6}>
                       <SimpleGrid columns={2} spacing={10}>
                       </SimpleGrid>
-                    </Card> */}
-                  </TabPanel>
+                    </Card> }
+                  </TabPanel> */}
                 </TabPanels>
                 {/* OVERVIEW */}
                 <Card p={6}>
