@@ -40,6 +40,7 @@ import { Promotion, Promotions } from "ordercloud-javascript-sdk"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
 import { appPredefinedPromotions, appPredefinedPromotionsGrouped } from "../../constants/app-promotions.config"
 
+import BuyerContextSwitch from "../buyers/BuyerContextSwitch"
 import DatePicker from "../datepicker/DatePicker"
 import { IPromotion } from "types/ordercloud/IPromotion"
 import ResetButton from "../react-hook-form/reset-button"
@@ -316,6 +317,14 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                             <SwitchControl name="CanCombine" label="Can be combined" control={_control} />
                             <SwitchControl name="AllowAllBuyers" label="Allow all buyers" control={_control} />
                           </VStack>
+                          <Divider />
+                          {values.AllowAllBuyers ? <>
+                            <Select placeholder='Select option'>
+                              <option value='option1'>Demo Campus 1</option>
+                              <option value='option2'>Demo Campus 2</option>
+                              <option value='option3'>Demo Campus 3</option>
+                            </Select>
+                          </> : <></>} 
                         </Flex>
                         <Flex flexFlow="column nowrap" gap={4}>
                           <SwitchControl name="xp_ApplyToMealPlan" label="Apply to Meal Plan" control={_control} />
