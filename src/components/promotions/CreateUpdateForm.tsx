@@ -11,6 +11,7 @@ import {
   Divider,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Grid,
   GridItem,
@@ -32,14 +33,14 @@ import {
   VStack
 } from "@chakra-ui/react"
 import { ChangeEvent, useEffect, useState } from "react"
-import { Controller, useController, useForm } from "react-hook-form"
+import { Controller, get, useController, useForm, useFormState } from "react-hook-form"
+import { DeleteIcon, InfoOutlineIcon } from "@chakra-ui/icons"
 import { InputControl, RadioGroupControl, SelectControl, SwitchControl, TextareaControl } from "components/react-hook-form"
 import { Promotion, Promotions } from "ordercloud-javascript-sdk"
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react"
 import { appPredefinedPromotions, appPredefinedPromotionsGrouped } from "../../constants/app-promotions.config"
 
 import DatePicker from "../datepicker/DatePicker"
-import { DeleteIcon } from "@chakra-ui/icons"
 import { IPromotion } from "types/ordercloud/IPromotion"
 import ResetButton from "../react-hook-form/reset-button"
 import SubmitButton from "../react-hook-form/submit-button"
@@ -115,9 +116,11 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
     ExpirationDate: Yup.date(),
     EligibleExpression: Yup.string().max(400).required("Eligible Expression is required"),
     ValueExpression: Yup.string().max(400).required("Value Expression is required"),
-    Description: Yup.string().max(100),
-    xp_MinReqValue: Yup.number().transform(emptyStringToNull).nullable().typeError("You must specify a number"),
-    ApplyToMealPlan: Yup.boolean()
+    Description: Yup.string().max(100),    
+    xp_ApplyToMealPlan: Yup.boolean(),
+    xp_GuestMeals:Yup.string(),
+    xp_DinningDollars: Yup.string(),
+    xp_MealsPerSemester : Yup.string()
   }
   const { isCreating, successToast, errorToast, validationSchema, defaultValues, onSubmit } =
     useCreateUpdateForm<Promotion>(promotion, formShape, createPromotion, updatePromotion)
@@ -189,6 +192,7 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
   }
 
   async function updatePromotion(fields: Promotion) {
+    
     await Promotions.Save<IPromotion>(fields.ID, fields)
     successToast({
       description: "Promotion updated successfully."
@@ -236,7 +240,7 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                   Delete
                 </Button>
               )}
-            </ButtonGroup>
+            </ButtonGroup>            
             <Tabs mt={6} colorScheme="accent">
               <TabList>
                 {/* This tab contains all default Promotion API options (No extended propreties) */}
@@ -314,12 +318,12 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                           </VStack>
                         </Flex>
                         <Flex flexFlow="column nowrap" gap={4}>
-                          <SwitchControl name="ApplyToMealPlan" label="Apply to Meal Plan" control={_control} />
+                          <SwitchControl name="xp_ApplyToMealPlan" label="Apply to Meal Plan" control={_control} />
                           <Divider />
-                          {values.ApplyToMealPlan ? <><FormControl>
-                            <label htmlFor="MealsPerSemester">Meals per semester</label>
-                            <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
-                              <NumberInputField name="MealsPerSemester" />
+                          {values.xp_ApplyToMealPlan ? <><FormControl>
+                            <label htmlFor="xp_MealsPerSemester">Meals per semester</label>
+                            <NumberInput defaultValue={0} max={1000} clampValueOnBlur={false}>
+                              <NumberInputField name="xp_MealsPerSemester" />
                               <NumberInputStepper>
                                 <NumberIncrementStepper />
                                 <NumberDecrementStepper />
@@ -327,9 +331,9 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                             </NumberInput>
                           </FormControl>
                             <FormControl>
-                              <label htmlFor="DinningDollars">Dinning Dollars</label>
-                              <NumberInput defaultValue={1} max={10} clampValueOnBlur={false}>
-                                <NumberInputField name="DinningDollars" />
+                              <label htmlFor="xp_DinningDollars">Dinning Dollars</label>
+                              <NumberInput defaultValue={0} max={1000} clampValueOnBlur={false}>
+                                <NumberInputField name="xp_DinningDollars" />
                                 <NumberInputStepper>
                                   <NumberIncrementStepper />
                                   <NumberDecrementStepper />
@@ -337,14 +341,14 @@ function CreateUpdateForm({ promotion }: CreateUpdateFormProps) {
                               </NumberInput>
                             </FormControl>
                             <FormControl>
-                              <label htmlFor="GuestMeals">Guest Meals</label>
-                              <NumberInput defaultValue={100} max={1000} clampValueOnBlur={false}>
-                                <NumberInputField name="GuestMeals" />
+                              <label htmlFor="xp_GuestMeals">Guest Meals</label>
+                              <NumberInput defaultValue={0} max={1000} clampValueOnBlur={false}>
+                                <NumberInputField name="xp_GuestMeals" />
                                 <NumberInputStepper>
                                   <NumberIncrementStepper />
                                   <NumberDecrementStepper />
                                 </NumberInputStepper>
-                              </NumberInput>
+                              </NumberInput>                                                           
                             </FormControl></> : <></>}
                         </Flex>
                       </SimpleGrid>
