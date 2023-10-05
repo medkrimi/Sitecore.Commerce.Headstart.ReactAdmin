@@ -1,11 +1,11 @@
 import {ApiRole, CookieOptions} from "ordercloud-javascript-sdk"
 
-import {appPermissions} from "./app-permissions.config"
+import {AppPermissions} from "./app-permissions.config"
 import {uniq} from "lodash"
 
 const appRoles = uniq(
-  Object.keys(appPermissions)
-    .map((permissionName) => appPermissions[permissionName])
+  Object.keys(AppPermissions)
+    .map((permissionName) => AppPermissions[permissionName])
     .flat()
 )
 

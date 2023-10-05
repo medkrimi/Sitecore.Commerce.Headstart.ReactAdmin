@@ -1,14 +1,12 @@
-import { Image, useColorMode } from "@chakra-ui/react"
+import {IconProps} from "@chakra-ui/react"
+import {Link} from "../navigation/Link"
+import {MyCommerceIcon} from "../icons/Icons"
 
-import { Link } from "../navigation/Link"
-
-const HeaderLogo = () => {
-  const { colorMode } = useColorMode()
+interface HeaderLogoProps extends IconProps {}
+export function HeaderLogo({...iconProps}: HeaderLogoProps) {
   return (
-    <Link href="/">
-      <Image w={165} src={colorMode === "dark" ? "/vector/isc2--dark.svg" : "/vector/isc2--default.svg"} alt="ISC2" />
+    <Link href="/" display="flex" alignItems="center" height="100%">
+      <MyCommerceIcon {...iconProps} />
     </Link>
   )
 }
-
-export default HeaderLogo

@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
 import "react-querybuilder/dist/query-builder.css"
+import "overlayscrollbars/overlayscrollbars.css"
 
 import type {AppProps} from "next/app"
 import {Chakra} from "components/Chakra"
 import {DefaultSeo} from "next-seo"
 import Head from "next/head"
 import Layout from "components/layout/Layout"
+import {ModalProvider} from "hooks/useAwaitableModals"
 import {ProtectedApp} from "components/auth/ProtectedApp"
 import {SetConfiguration} from "../services/ordercloud.service"
 import {axiosService} from "services/axios.service"
@@ -34,7 +36,9 @@ const MyApp = ({Component, pageProps, ...appProps}: AppProps) => {
       <DynamicAuthProvider>
         <ProtectedApp>
           <Layout {...pageProps}>
-            <Component {...pageProps} />
+            <ModalProvider>
+              <Component {...pageProps} />
+            </ModalProvider>
           </Layout>
         </ProtectedApp>
       </DynamicAuthProvider>
