@@ -6,7 +6,11 @@ const HeaderLogo = () => {
   const {colorMode} = useColorMode()
   return (
     <Link href="/">
-      <Image w={165} src={colorMode === "dark" ? "/vector/isc2--dark.svg" : "/vector/isc2--default.svg"} alt="ISC2" />
+      <Image
+        w={165}
+        src={colorMode === "dark" ? "/vector/iron-mtn--dark.svg" : "/vector/iron-mtn--default.svg"}
+        alt="Iron Mountain"
+      />
     </Link>
   )
 }
